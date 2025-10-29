@@ -1,21 +1,38 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const {
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus,
+  StreamType,
+} = require('@discordjs/voice');
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
+const ffmpegPath = require('ffmpeg-static');
 
+// Ambil variabel dari file .env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
-const GUILD_ID = "1432695484384018565";
-const VOICE_CHANNEL_ID = "1432695485864349851";
+const GUILD_ID = process.env.GUILD_ID || "1432695484384018565";
+const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID || "1432695485864349851";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+// Buat client Discord
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
+});
 
+// Event saat bot berhasil login
 client.once('ready', async () => {
   console.log(`✅ Login sebagai ${client.user.tag}`);
 
   const guild = client.guilds.cache.get(GUILD_ID);
-  if (!guild) return console.error("Guild tidak ditemukan.");
+  if (!guild) {
+    console.error("❌ Guild tidak ditemukan. Pastikan GUILD_ID benar.");
+    return;
+  }
 
+  // Bergabung ke voice channel
   const connection = joinVoiceChannel({
     channelId: VOICE_CHANNEL_ID,
     guildId: GUILD_ID,
@@ -23,10 +40,20 @@ client.once('ready', async () => {
     selfDeaf: false,
   });
 
-  // Buat player dan audio resource dari silent.mp3
-  const player = createAudioPlayer();
-  const resource = createAudioResource(path.join(__dirname, 'silent.mp3'));
+  // Gunakan ffmpeg-static untuk memutar silent.mp3
+  const ffmpeg = spawn(ffmpegPath, [
+    '-i', path.join(__dirname, 'silent.mp3'),
+    '-f', 's16le',
+    '-ar', '48000',
+    '-ac', '2',
+    'pipe:1'
+  ]);
 
+  const resource = createAudioResource(ffmpeg.stdout, {
+    inputType: StreamType.Raw,
+  });
+
+  const player = createAudioPlayer();
   player.play(resource);
   connection.subscribe(player);
 
@@ -39,4 +66,5 @@ client.once('ready', async () => {
   });
 });
 
+// Jalankan bot
 client.login(TOKEN);
