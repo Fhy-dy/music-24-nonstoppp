@@ -6,12 +6,19 @@
   "scripts": {
     "start": "node botdummy.js"
   },
-  "keywords": ["discord", "bot", "music", "24/7", "voice"],
+  "keywords": [
+    "discord",
+    "bot",
+    "music",
+    "24/7",
+    "voice"
+  ],
   "author": "Raja Tembang",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "@discordjs/voice": "^0.19.0",
-    "discord.js": "^14.24.1"
+    "discord.js": "^14.24.1",
+    "dotenv": "^16.4.5"
   }
 }
