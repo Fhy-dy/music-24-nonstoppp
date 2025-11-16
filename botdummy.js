@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const TOKEN = process.env.TOKEN;
 const GUILD_ID = "1432695484384018565";
-const VOICE_CHANNEL_ID = "1432695485864349851";
+const VOICE_CHANNEL_ID = "1439436092175814800";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 
